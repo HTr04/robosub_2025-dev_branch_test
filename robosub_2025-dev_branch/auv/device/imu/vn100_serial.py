@@ -64,7 +64,7 @@ if __name__ == "__main__":
     import time
     import csv
     from datetime import datetime
-    sensor = VN100()
+    sensor = VN100()  
 
     # Create a timestamped filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            # time.sleep(1 / 50)  # 50 Hz
+            time.sleep(1 / 40)  # 40 Hz
             data.append({
                 "timestamp": datetime.now().isoformat(),
                 "Roll": sensor.roll,
