@@ -92,7 +92,8 @@ class PolesMission:
 if __name__ == "__main__":
     import time
     from auv.utils import deviceHelper
-
+    from auv.motion import robot_control
+    
     rospy.init_node("poles_mission", anonymous=True)
 
     config = deviceHelper.variables
