@@ -10,7 +10,7 @@ class CV:
         self.x_midpoint = self.shape[0] / 2
         self.y_midpoint = self.shape[1] / 2
         self.tolerance = 50
-        self.side = side
+        self.side = side  # side="left" or side="right" as decided from the gate mission!
         self.last_seen_side = None
         print(f"[INFO] Dual Pole CV with offset logic for {self.side}-side navigation")
 
@@ -67,11 +67,17 @@ class CV:
 
         return red_poles, white_poles, mask_red, mask_white, frame
 
-    def draw_poles(self, frame, red_poles, white_poles):
+    def draw_poles(self, frame, red_poles, white_poles, red_center=None, offset=None):
         for (x, y, w, h) in red_poles:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0,0,255), 2)
         for (x, y, w, h) in white_poles:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (0,255,0), 2)
+        # === DEBUG LINES ===
+        if red_center is not None: 
+            cv2.line(frame, (int(red_center), 0), (int(red_center), frame.shape[0]), (0,0,255), 1)   # Red center
+            if offset is not None:
+                offset_x = int(red_center + offset) if self.side == "left" else int(red_center - offset)
+                cv2.line(frame, (offset_x, 0), (offset_x, frame.shape[0]), (255,0,0), 2)             # Blue offset
         return frame
 
     def get_main_pole_centers(self, red_poles, white_poles):
@@ -92,7 +98,7 @@ class CV:
         lateral = 0
         yaw = 0
 
-        desired_offset = 60  # *** TUNE THIS VALUE *** (see tips below!)
+        desired_offset = 90  # *** TUNE THIS VALUE ***
 
         if red_center is not None and white_center is not None:
             center = (red_center + white_center) / 2
@@ -112,18 +118,26 @@ class CV:
             self.last_seen_side = "left" if center < self.x_midpoint else "right"
 
         elif red_center is not None:
-            # Only red: stay offset right of red (i.e., keep red a little left of center)
-            target_pos = red_center + desired_offset
+            # Only red: offset depends on which side we're supposed to pass
+            if self.side == "left":
+                target_pos = red_center + desired_offset   # Keep red on left, sub on right
+            else:
+                target_pos = red_center - desired_offset   # Keep red on right, sub on left
+
             if target_pos < self.x_midpoint - self.tolerance:
                 yaw = 0.4
-                print("[INFO] Red+offset left → veer right")
+                print(f"[INFO] Red+offset left → veer right (side: {self.side})")
             elif target_pos > self.x_midpoint + self.tolerance:
                 yaw = -0.4
-                print("[INFO] Red+offset right → veer left")
+                print(f"[INFO] Red+offset right → veer left (side: {self.side})")
             else:
                 yaw = 0
-                print("[INFO] Following red pole with offset → go straight")
-            self.last_seen_side = "left" if target_pos < self.x_midpoint else "right"
+                print(f"[INFO] Following red pole with offset → go straight (side: {self.side})")
+
+            if target_pos < self.x_midpoint:
+                self.last_seen_side = "left"
+            else:
+                self.last_seen_side = "right"
 
         else:
             forward = 0
@@ -142,7 +156,14 @@ class CV:
     def run(self, raw_frame, target, detections):
         red_poles, white_poles, mask_red, mask_white, enhanced = self.detect_poles(raw_frame)
         red_center, white_center = self.get_main_pole_centers(red_poles, white_poles)
-        frame_drawn = self.draw_poles(enhanced.copy(), red_poles, white_poles)
+        offset_for_line = 60 if red_center is not None and white_center is None else None
+        frame_drawn = self.draw_poles(
+            enhanced.copy(),
+            red_poles,
+            white_poles,
+            red_center=red_center,
+            offset=offset_for_line
+        )
         combined_mask = cv2.bitwise_or(mask_red, mask_white)
         visualized_frame = cv2.bitwise_and(frame_drawn, frame_drawn, mask=combined_mask)
         forward, lateral, yaw, vertical = self.movement_calculation(red_center, white_center)
@@ -155,21 +176,37 @@ class CV:
         }, visualized_frame
 
 if __name__ == "__main__":
-    cv = CV(side="left")
+    # Use side="left" or "right" based on the GATE decision
+    cv = CV(side="left")  # Change to "right" if gate chooses that path
     cap = cv2.VideoCapture(cv.camera)
+    desired_offset = 60  # <-- TUNE THIS as needed!
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
         red_poles, white_poles, mask_red, mask_white, enhanced = cv.detect_poles(frame)
-        frame_drawn = cv.draw_poles(enhanced.copy(), red_poles, white_poles)
+        red_center, white_center = cv.get_main_pole_centers(red_poles, white_poles)
+
+        offset_for_line = desired_offset if red_center is not None and white_center is None else None
+        frame_drawn = cv.draw_poles(
+            enhanced.copy(),
+            red_poles,
+            white_poles,
+            red_center=red_center,
+            offset=offset_for_line
+        )
+
         cv2.imshow("Red Poles Mask", mask_red)
         cv2.imshow("White Poles Mask", mask_white)
         cv2.imshow("Poles Detection", frame_drawn)
-        red_center, white_center = cv.get_main_pole_centers(red_poles, white_poles)
+
         movement = cv.movement_calculation(red_center, white_center)
         print(f"[FRAME] Movement: {movement}")
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
             break
+
     cap.release()
     cv2.destroyAllWindows()
