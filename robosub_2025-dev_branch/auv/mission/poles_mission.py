@@ -6,8 +6,7 @@ from ..device import cv_handler  # For running mission-specific CV scripts
 from ..motion import robot_control  # For running the motors on the sub
 from ..utils import disarm
 
-class PolesMission:
-    cv_files = ["poles_cv"]  # Your CV file to run
+class PolesMission:    
 
     def __init__(self, side="left", **config):
         """
@@ -16,6 +15,7 @@ class PolesMission:
             side: "left" or "right" (from the gate mission)
             config: Mission-specific parameters to run the mission.
         """
+        self.cv_files = ["poles_cv"]  # List of CV files to run for this mission
         self.config = config
         self.data = {}
         self.next_data = {}
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     import time
     from auv.utils import deviceHelper
     from auv.motion import robot_control
-    
+
     rospy.init_node("poles_mission", anonymous=True)
 
     config = deviceHelper.variables
