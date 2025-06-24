@@ -104,5 +104,12 @@ if __name__ == "__main__":
     # Here, set side based on the result of the gate mission
     # Example: side="left" or side="right"
     mission = PolesMission(side="left", **config)
+    rc = robot_control.RobotControl()
+
+    # Run the mission
+    arm.arm()
+    rc.set_depth(0.5)
+    time.sleep(5)   
     mission.run()
     mission.cleanup()
+    disarm.disarm()  # Disarm the robot after mission completion
