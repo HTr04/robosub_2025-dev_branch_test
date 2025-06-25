@@ -4,7 +4,7 @@ from std_msgs.msg import String
 
 from ..device import cv_handler  # For running mission-specific CV scripts
 from ..motion import robot_control  # For running the motors on the sub
-from ..utils import disarm
+from ..utils import disarm, arm
 
 class PolesMission:    
 
@@ -15,13 +15,13 @@ class PolesMission:
             side: "left" or "right" (from the gate mission)
             config: Mission-specific parameters to run the mission.
         """
-        self.cv_files = ["poles_cv"]  # List of CV files to run for this mission
+        self.cv_files = ["poles_cv_huy"]  # List of CV files to run for this mission
         self.config = config
         self.data = {}
         self.next_data = {}
         self.received = False
 
-        # Add the side (left/right) into config so your poles_cv.py uses it
+        # Add the side (left/right) into config so your poles_cv_huy.py uses it
         self.config['side'] = side
 
         self.robot_control = robot_control.RobotControl()
@@ -30,7 +30,7 @@ class PolesMission:
         # Start CV handler for each CV file
         for file_name in self.cv_files:
             self.cv_handler.start_cv(file_name, self.callback)
-        self.cv_handler.set_target("poles_cv", side)
+        self.cv_handler.set_target("poles_cv_huy", side)
         print(f"[INFO] Poles Mission Init (side: {side})")
 
     def callback(self, msg):
@@ -62,7 +62,7 @@ class PolesMission:
             self.next_data = {}
 
             # Extract movement commands from CV
-            cv_key = "poles_cv"
+            cv_key = "poles_cv_huy"
             forward = self.data[cv_key].get("forward", 0)
             lateral = self.data[cv_key].get("lateral", 0)
             yaw = self.data[cv_key].get("yaw", 0)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # Run the mission
     arm.arm()
-    rc.set_depth(0.5)
+    rc.set_depth(0.7)
     time.sleep(5)   
     mission.run()
     mission.cleanup()
