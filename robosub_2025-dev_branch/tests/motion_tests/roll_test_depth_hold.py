@@ -16,14 +16,14 @@ def main():
     rc.set_mode("ALT_HOLD")
     rospy.sleep(5.0)
 
-    rate = rospy.Rate(10)  # 10 Hz update rate
-    start_time = rospy.Time.now().to_sec()
-    while rospy.Time.now().to_sec() - start_time < 5:
+    
+    first_time = time.time()
+    while time.time() - first_time < 5:
         rc.movement(roll=5)
-        rate.sleep()
+    
 
     rc.movement(roll=0)
-    rospy.sleep(1.0)
+    time.sleep(1.0)
 
     disarm.disarm()
 
