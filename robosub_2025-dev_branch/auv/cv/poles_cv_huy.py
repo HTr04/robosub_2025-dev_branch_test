@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 class CV:
-    camera = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_1.mp4" # Local video file
+    camera = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4" # Local video file
 
     def __init__(self, side="left", **config):
         self.shape = (640, 480)
@@ -177,7 +177,7 @@ class CV:
 
 if __name__ == "__main__":
     # Use side="left" or "right" based on the GATE decision
-    cv = CV(side="left")  # Change to "right" if gate chooses that path
+    cv = CV(side="right")  # Change to "right" if gate chooses that path
     cap = cv2.VideoCapture(cv.camera)
     desired_offset = 120  # <-- TUNE THIS as needed!
 
