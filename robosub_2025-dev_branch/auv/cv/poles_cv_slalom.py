@@ -16,7 +16,7 @@ OFFSET_MIN_PX = 120                 # Min lateral offset in px (tune!)
 OFFSET_MAX_PX = 200                # Max lateral offset in px (tune!)
 DEAD_RECKONING_TIME_SEC = 2.0       # Time to move after pole is skipped (tune!)
 SEARCH_YAW_MAX_DEG = 40             # Max yaw angle for search phase
-LATERAL_MAX_POWER = 2              # Maps OFFSET_MAX_PX to this power
+LATERAL_MAX_POWER = 1              # Maps OFFSET_MAX_PX to this power
 APPROACH_FORWARD_POWER = 1.5        # Forward power while approaching
 SEARCH_YAW_POWER = 2                # Power for search yaw motion
 
@@ -171,7 +171,7 @@ class CV:
                     "yaw": 0,
                     "end": False,
                     "pole_idx": self.passed_poles,
-                    "state": self.state,
+                    "state": self.state
                 }
             else:
                 self.passed_poles += 1
@@ -196,7 +196,7 @@ class CV:
 
 if __name__ == "__main__":
     # For testing/unit test purposes only (use your real camera or video file)
-    cap = cv2.VideoCapture("C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4")
+    cap = cv2.VideoCapture("C:/Users/huytr/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/auv/yolomodel_train/CV_training_data/CV_1.mp4")
     cv = CV(side="right")  # Change to "left" or "right" if needed
 
     while True:

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-video_path = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4"  # Change if needed
+video_path = "C:/Users/huytr/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/auv/yolomodel_train/CV_training_data/CV_1.mp4"  # Change if needed
 
 def nothing(x): pass
 
