@@ -24,14 +24,15 @@ print(f"Images will be saved to: {out_img_dir}")
 print(f"Labels will be saved to: {out_label_dir}")
 
 # ---- Video and HSV Config ----
-video_path = "C:/Users/huytr/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/auv/yolomodel_train/CV_training_data/CV_1.mp4"
+video_path = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4"
 frame_skip = 1
 min_box_area = 400
 
 HSV_RANGES = [
-    (0, [0, 80, 50], [12, 255, 255]), # Lower red range
-    (0, [168, 80, 50], [179, 255, 255]), # Upper red range
+    #(0, [0, 80, 50], [12, 255, 255]), # Lower red range
+    #(0, [168, 80, 50], [179, 255, 255]), # Upper red range
     # (1, [0, 0, 200], [180, 30, 255]),
+    (1, [22, 100, 100], [32, 255, 255]), # bright yellow range
     # Add more if needed
 ]
 
@@ -78,7 +79,12 @@ while True:
                 used[y:y+bh, x:x+bw] = 255
                 # Draw box for preview
                 color = (0, 0, 255) if class_id == 0 else (0, 255, 0)
-                cv2.rectangle(preview_img, (x, y), (x+bw, y+bh), color, 2)
+                 # Draw the bounding rectangle (optional, for reference)
+                cv2.rectangle(preview_img, (x, y), (x+bw, y+bh), color, 1)
+
+                # Draw the actual contour as a polygon!
+                cv2.drawContours(preview_img, [cnt], -1, (0, 255, 255), 2)
+
                 cv2.putText(preview_img, f"Class {class_id}", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
         if combined_labels:
@@ -91,7 +97,7 @@ while True:
 
         # ---- SHOW PREVIEW ----
         if show_preview:
-            cv2.imshow("Box Preview", preview_img)
+            cv2.imshow("Box & Polygon Preview", preview_img)
             key = cv2.waitKey(preview_wait) & 0xFF
             if key == ord('q'):
                 print("User quit early.")

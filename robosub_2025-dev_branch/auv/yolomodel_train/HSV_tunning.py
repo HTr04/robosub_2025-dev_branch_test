@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
+import tkinter as tk
 
-video_path = "C:/Users/huytr/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/auv/yolomodel_train/CV_training_data/CV_1.mp4"  # Change if needed
+video_path = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4"  # Change if needed
 
 def nothing(x): pass
 
@@ -38,52 +39,129 @@ while True:
         frame = current_frame.copy()
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    # Get lower red range
-    l_h1 = cv2.getTrackbarPos("LH1", "HSV Calibration")
-    l_s1 = cv2.getTrackbarPos("LS1", "HSV Calibration")
-    l_v1 = cv2.getTrackbarPos("LV1", "HSV Calibration")
-    u_h1 = cv2.getTrackbarPos("UH1", "HSV Calibration")
-    u_s1 = cv2.getTrackbarPos("US1", "HSV Calibration")
-    u_v1 = cv2.getTrackbarPos("UV1", "HSV Calibration")
-    lower1 = np.array([l_h1, l_s1, l_v1])
-    upper1 = np.array([u_h1, u_s1, u_v1])
-    # Get upper red range
-    l_h2 = cv2.getTrackbarPos("LH2", "HSV Calibration")
-    l_s2 = cv2.getTrackbarPos("LS2", "HSV Calibration")
-    l_v2 = cv2.getTrackbarPos("LV2", "HSV Calibration")
-    u_h2 = cv2.getTrackbarPos("UH2", "HSV Calibration")
-    u_s2 = cv2.getTrackbarPos("US2", "HSV Calibration")
-    u_v2 = cv2.getTrackbarPos("UV2", "HSV Calibration")
-    lower2 = np.array([l_h2, l_s2, l_v2])
-    upper2 = np.array([u_h2, u_s2, u_v2])
-
+    lower1 = np.array(hsv_values[0:3])
+    upper1 = np.array(hsv_values[3:6])
+    lower2 = np.array(hsv_values[6:9])
+    upper2 = np.array(hsv_values[9:12])
     mask1 = cv2.inRange(hsv, lower1, upper1)
     mask2 = cv2.inRange(hsv, lower2, upper2)
     mask = cv2.bitwise_or(mask1, mask2)
     result = cv2.bitwise_and(frame, frame, mask=mask)
+    return result, mask
 
-    cv2.imshow("Original", frame)
+# --- Tkinter GUI for HSV values ---
+class HSVCalibApp:
+    def __init__(self, root, params):
+        self.root = root
+        self.vars = {}
+        self.entries = {}
+        for i, (name, default, minval, maxval) in enumerate(params):
+            tk.Label(root, text=f"{name}:").grid(row=i, column=0, sticky='w')
+            var = tk.IntVar(value=default)
+            slider = tk.Scale(root, from_=minval, to=maxval, orient=tk.HORIZONTAL, variable=var, command=lambda val, n=name: self.update_entry(n, val))
+            slider.grid(row=i, column=1, sticky='ew')
+            entry = tk.Entry(root, width=5)
+            entry.insert(0, str(default))
+            entry.grid(row=i, column=2)
+            entry.bind("<Return>", lambda e, n=name: self.entry_update_slider(n))
+            entry.bind("<FocusOut>", lambda e, n=name: self.entry_update_slider(n))
+            self.vars[name] = var
+            self.entries[name] = entry
+            # callback for direct entry
+        tk.Button(root, text="Apply", command=self.apply).grid(row=len(params), column=0, columnspan=3)
+        self.updated = False
+        root.grid_columnconfigure(1, weight=1)
+
+    def get(self, name):
+        return self.vars[name].get()
+
+    def get_all(self):
+        return [self.vars[name].get() for name, _, _, _ in hsv_params]
+
+    def update_entry(self, name, val):
+        # Update entry when slider moves
+        entry = self.entries[name]
+        if entry.get() != str(val):
+            entry.delete(0, tk.END)
+            entry.insert(0, str(val))
+        self.updated = True
+
+    def entry_update_slider(self, name):
+        try:
+            val = int(self.entries[name].get())
+        except:
+            val = self.vars[name].get()
+        minval = hsv_params[[n for n,_,_,_ in hsv_params].index(name)][2]
+        maxval = hsv_params[[n for n,_,_,_ in hsv_params].index(name)][3]
+        val = max(minval, min(val, maxval))
+        self.vars[name].set(val)
+        self.updated = True
+
+    def apply(self):
+        self.updated = True
+
+root = tk.Tk()
+root.title("HSV Calibration GUI")
+app = HSVCalibApp(root, hsv_params)
+
+# --- OpenCV preview window
+cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
+cap = cv2.VideoCapture(video_path)
+paused = False
+frame_idx = 0
+
+ret, frame = cap.read()
+if not ret:
+    print("Video could not be read or is empty.")
+    exit(1)
+current_frame = frame.copy()
+frame_idx = 1  # Start at first frame
+
+while True:
+    root.update()
+    hsv_values = app.get_all()
+    result, mask = process_frame(current_frame, hsv_values)
+    cv2.imshow("Original", current_frame)
     cv2.imshow("Mask", mask)
     cv2.imshow("Result", result)
 
     key = cv2.waitKey(30) & 0xFF
-    if key == 27:  # ESC to exit
+
+    if key == 27:  # ESC
         break
-    elif key == ord(' '):  # Space to pause/play
+
+    elif key == ord(' '):  # Pause/play toggle
         paused = not paused
-    elif key == ord('d'):  # Next frame
+
+    elif key == ord('d'):  # Step forward one frame
         paused = True
         ret, frame = cap.read()
         if ret:
             current_frame = frame.copy()
             frame_idx += 1
-    elif key == ord('a'):  # Previous frame (reloads; slow)
+        else:
+            print("End of video.")
+
+    elif key == ord('a'):  # Step backward one frame
         paused = True
-        cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, frame_idx-2))
+        seek_frame = max(0, frame_idx - 2)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, seek_frame)
         ret, frame = cap.read()
         if ret:
             current_frame = frame.copy()
-            frame_idx = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+            frame_idx = seek_frame + 1
+
+    elif not paused:
+        # In play mode, auto-advance every cycle
+        ret, frame = cap.read()
+        if ret:
+            current_frame = frame.copy()
+            frame_idx += 1
+        else:
+            print("End of video.")
+            break
 
 cap.release()
 cv2.destroyAllWindows()
+root.destroy()
+
