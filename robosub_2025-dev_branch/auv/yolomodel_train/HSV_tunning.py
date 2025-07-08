@@ -79,7 +79,7 @@ root = tk.Tk()
 root.title("HSV Calibration GUI")
 app = HSVCalibApp(root, hsv_params)
 
-# --- OpenCV preview window
+# --- OpenCV preview window ---
 cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
 cap = cv2.VideoCapture(video_path)
 paused = False
