@@ -1,3 +1,5 @@
+""" this script processes a video file, detects objects based on specified HSV color ranges,
+    and saves the detected objects as YOLO format labels in a specified output directory."""
 import cv2
 import numpy as np
 import os
