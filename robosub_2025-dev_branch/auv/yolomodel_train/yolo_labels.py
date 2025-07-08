@@ -24,7 +24,7 @@ print(f"Images will be saved to: {out_img_dir}")
 print(f"Labels will be saved to: {out_label_dir}")
 
 # ---- Video and HSV Config ----
-video_path = "C:/Users/HOME/Documents/GitHub/CV_data/Image_video_test_2.mp4"
+video_path = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4"
 frame_skip = 1
 min_box_area = 400
 

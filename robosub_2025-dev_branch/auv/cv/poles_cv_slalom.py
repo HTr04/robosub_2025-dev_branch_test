@@ -2,6 +2,9 @@
 Poles Slalom CV - Template Style.
 Detects red poles, approaches with adaptive offset, skips when close, performs dead reckoning, then repeats.
 All motion outputs are scaled and clamped for robot_control compatibility.
+
+Note: diameter = 1 inch = 2.54 cm, should be used for pole diameter if needed.
+Using heading to determine yawing direction.
 """
 
 import time
@@ -9,14 +12,14 @@ import cv2
 import numpy as np
 
 # === TUNABLE PARAMETERS ===
-REAL_POLE_HEIGHT_CM = 91.44         # 3 feet pole (cm)
+REAL_POLE_HEIGHT_CM = 91.44         # 3 feet pole = 91.44cm, 
 FOCAL_LENGTH_MM = 2.75              # OAK-D W focal length (mm)
 SENSOR_HEIGHT_MM = 3.4              # IMX378 sensor height (mm)
 OFFSET_MIN_PX = 120                 # Min lateral offset in px (tune!)
 OFFSET_MAX_PX = 200                # Max lateral offset in px (tune!)
 DEAD_RECKONING_TIME_SEC = 2.0       # Time to move after pole is skipped (tune!)
 SEARCH_YAW_MAX_DEG = 40             # Max yaw angle for search phase
-LATERAL_MAX_POWER = 2              # Maps OFFSET_MAX_PX to this power
+LATERAL_MAX_POWER = 1              # Maps OFFSET_MAX_PX to this power
 APPROACH_FORWARD_POWER = 1.5        # Forward power while approaching
 SEARCH_YAW_POWER = 2                # Power for search yaw motion
 
@@ -171,7 +174,7 @@ class CV:
                     "yaw": 0,
                     "end": False,
                     "pole_idx": self.passed_poles,
-                    "state": self.state,
+                    "state": self.state
                 }
             else:
                 self.passed_poles += 1
@@ -196,7 +199,7 @@ class CV:
 
 if __name__ == "__main__":
     # For testing/unit test purposes only (use your real camera or video file)
-    cap = cv2.VideoCapture("C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4")
+    cap = cv2.VideoCapture("C:/Users/huytr/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/auv/yolomodel_train/CV_training_data/CV_1.mp4")
     cv = CV(side="right")  # Change to "left" or "right" if needed
 
     while True:
