@@ -33,7 +33,7 @@ if not video_path:
     exit(0)
 
 # ---- YOLO Model Path ----
-MODEL_PATH = 'C:/Users/HOME/Downloads/best.pt'  # Edit to your model path
+MODEL_PATH = 'D:/CV_data/YOLO model/Model_red_pole_3692.pt'  # Edit to your model path
 
 # ---- Load YOLO Model ----
 model = YOLO(MODEL_PATH)

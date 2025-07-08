@@ -8,7 +8,7 @@ model = YOLO('D:/CV_data/YOLO model/Model_red_pole_3692.pt')  # Change to your a
 
 # Run detection on your video
 results = model.predict(
-    source='D:/CV_data/Video_test/poles_test_1.mp4',    # Path to your video
+    source='D:/CV_data/Video_test/poles_test_5_7_8_25.mp4',    # Path to your video
     save=True,             # Save the output video with boxes drawn
     conf=0.25,             # Confidence threshold (adjust as needed)
     show=True              # Show live results (works locally, not in Colab)
