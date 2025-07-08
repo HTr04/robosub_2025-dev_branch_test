@@ -2,42 +2,17 @@ import cv2
 import numpy as np
 import tkinter as tk
 
-video_path = "C:/Users/HOME/Documents/GitHub/CV_data/poles_test_4.mp4"  # Change if needed
+video_path = "C:/Users/HOME/Documents/GitHub/CV_data/Image_video_test_2.mp4"
 
-def nothing(x): pass
+# --- HSV Parameter Names, Defaults, and Ranges ---
+hsv_params = [
+    ("LH1", 0, 0, 179),   ("LS1", 100, 0, 255), ("LV1", 100, 0, 255),
+    ("UH1", 10, 0, 179),  ("US1", 255, 0, 255), ("UV1", 255, 0, 255),
+    ("LH2", 170, 0, 179), ("LS2", 100, 0, 255), ("LV2", 100, 0, 255),
+    ("UH2", 179, 0, 179), ("US2", 255, 0, 255), ("UV2", 255, 0, 255),
+]
 
-cv2.namedWindow("HSV Calibration", cv2.WINDOW_NORMAL)
-
-# Lower red range trackbars
-cv2.createTrackbar("LH1", "HSV Calibration", 0, 179, nothing)
-cv2.createTrackbar("LS1", "HSV Calibration", 100, 255, nothing)
-cv2.createTrackbar("LV1", "HSV Calibration", 100, 255, nothing)
-cv2.createTrackbar("UH1", "HSV Calibration", 10, 179, nothing)
-cv2.createTrackbar("US1", "HSV Calibration", 255, 255, nothing)
-cv2.createTrackbar("UV1", "HSV Calibration", 255, 255, nothing)
-
-# Upper red range trackbars
-cv2.createTrackbar("LH2", "HSV Calibration", 170, 179, nothing)
-cv2.createTrackbar("LS2", "HSV Calibration", 100, 255, nothing)
-cv2.createTrackbar("LV2", "HSV Calibration", 100, 255, nothing)
-cv2.createTrackbar("UH2", "HSV Calibration", 179, 179, nothing)
-cv2.createTrackbar("US2", "HSV Calibration", 255, 255, nothing)
-cv2.createTrackbar("UV2", "HSV Calibration", 255, 255, nothing)
-
-cap = cv2.VideoCapture(video_path)
-paused = False
-frame_idx = 0
-
-while True:
-    if not paused:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        current_frame = frame.copy()
-        frame_idx += 1
-    else:
-        frame = current_frame.copy()
-
+def process_frame(frame, hsv_values):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower1 = np.array(hsv_values[0:3])
     upper1 = np.array(hsv_values[3:6])
