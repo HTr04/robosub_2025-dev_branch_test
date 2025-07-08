@@ -21,7 +21,7 @@ DEAD_RECKONING_TIME_SEC = 2.0       # Time to move after pole is skipped (tune!)
 SEARCH_YAW_MAX_DEG = 40             # Max yaw angle for search phase
 LATERAL_MAX_POWER = 1              # Maps OFFSET_MAX_PX to this power
 APPROACH_FORWARD_POWER = 1.5        # Forward power while approaching
-SEARCH_YAW_POWER = 2                # Power for search yaw motion
+SEARCH_YAW_POWER = 1                # Power for search yaw motion
 
 def clamp_power(val):
     """Clamp any value to [-5, 5] for movement outputs."""
@@ -38,7 +38,7 @@ class CV:
     camera = "/auv/camera/videoOAKdRawForward"   # Update to camera/video path in config
 
     def __init__(self, **config):
-        self.yolo = YOLO('C:/Users/HOME/Downloads/best.pt')  # Path to your trained YOLOv8 weights
+        self.yolo = YOLO('D:/CV_data/YOLO model/Model_red_pole_3692.pt')  # Path to your trained YOLOv8 weights
         self.side = config.get("side", "left")      # 'left' or 'right'
         self.passed_poles = 0                       # How many red poles have been passed
         self.state = "search"
@@ -215,7 +215,7 @@ class CV:
 
 if __name__ == "__main__":
     # For testing/unit test purposes only (use your real camera or video file)
-    cap = cv2.VideoCapture("C:/Users/HOME/Documents/GitHub/CV_data/poles_test_2.mp4")
+    cap = cv2.VideoCapture("D:/CV_data/Video_test/poles_test_1.mp4")
     cv = CV(side="right")  # Change to "left" or "right" if needed
 
     while True:

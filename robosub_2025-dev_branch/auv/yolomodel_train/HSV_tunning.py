@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import tkinter as tk
 
-video_path = "C:/Users/HOME/Documents/GitHub/CV_data/Image_video_test_2.mp4"
+video_path = "D:/CV_data/Video_test/poles_test_1.mp4"
 
 # --- HSV Parameter Names, Defaults, and Ranges ---
 hsv_params = [
