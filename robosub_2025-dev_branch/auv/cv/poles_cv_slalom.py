@@ -6,7 +6,7 @@ All motion outputs are scaled and clamped for robot_control compatibility.
 Note: diameter = 1 inch = 2.54 cm, should be used for pole diameter if needed.
 Using heading to determine yawing direction.
 """
-
+from ultralytics import YOLO
 import time
 import cv2
 import numpy as np
@@ -38,6 +38,7 @@ class CV:
     camera = "/auv/camera/videoOAKdRawForward"   # Update to camera/video path in config
 
     def __init__(self, **config):
+        self.yolo = YOLO('C:/Users/HOME/Downloads/best.pt')  # Path to your trained YOLOv8 weights
         self.side = config.get("side", "left")      # 'left' or 'right'
         self.passed_poles = 0                       # How many red poles have been passed
         self.state = "search"
@@ -67,7 +68,22 @@ class CV:
             return self.offset_min_px
         ratio = min(bbox_h / self.frame_height, 1.0)
         return int(self.offset_min_px + (self.offset_max_px - self.offset_min_px) * ratio)
-
+    def detect_red_poles(self, frame):
+        # Run YOLO inference
+        results = self.yolo(frame)
+        red_poles = []
+        for r in results:
+            for box in r.boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                w, h = x2 - x1, y2 - y1
+                conf = float(box.conf[0])
+                if conf > 0.5:  # Only use high-confidence detections
+                    red_poles.append((x1, y1, w, h))
+        mask = np.zeros(frame.shape[:2], dtype=np.uint8)  # (optional) no mask for YOLO
+        return red_poles, mask
+    """"Used for custom red pole detection if needed, but YOLOv8 should be sufficient.
+    # Detect red poles using color thresholding"""
+    """
     def detect_red_poles(self, frame):
         blurred = cv2.GaussianBlur(frame, (5,5), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
@@ -87,7 +103,7 @@ class CV:
             aspect = h / float(w + 1e-5)
             if area > 200 and aspect > 2.0 and w < 100:
                 red_poles.append((x, y, w, h))
-        return red_poles, mask
+        return red_poles, mask"""
 
     def draw_overlay(self, frame, bbox, distance_m, offset_px):
         if bbox:
@@ -199,7 +215,7 @@ class CV:
 
 if __name__ == "__main__":
     # For testing/unit test purposes only (use your real camera or video file)
-    cap = cv2.VideoCapture("C:/Users/huytr/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/auv/yolomodel_train/CV_training_data/CV_1.mp4")
+    cap = cv2.VideoCapture("C:/Users/HOME/Documents/GitHub/CV_data/poles_test_2.mp4")
     cv = CV(side="right")  # Change to "left" or "right" if needed
 
     while True:
