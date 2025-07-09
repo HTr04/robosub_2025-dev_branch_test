@@ -1,0 +1,23 @@
+names:
+- bin
+- bin_sawfish
+- bin_shark
+- gate
+- gate_sawfish
+- gate_shark
+- octagon_table
+- path
+- slalom_red
+- torpedo_sawfish
+- torpedo_shark
+- torpedo_target
+nc: 12
+roboflow:
+  license: CC BY 4.0
+  project: rs25_lab_20250704
+  url: https://universe.roboflow.com/inspirationrs25/rs25_lab_20250704/dataset/1
+  version: 1
+  workspace: inspirationrs25
+test: ../test/images
+train: ../train/images
+val: ../valid/images
