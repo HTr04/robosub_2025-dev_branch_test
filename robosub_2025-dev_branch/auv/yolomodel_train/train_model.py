@@ -11,13 +11,13 @@ from roboflow import Roboflow
 from ultralytics import YOLO
 
 # ==== USER EDIT: Output Folder for results ====
-OUTPUT_FOLDER = r"E:/CV_data/YOLO model"   # Change this to wherever you want your results
+OUTPUT_FOLDER = r"C:/Users/HOME/Documents/GitHub/CV_data/Trained model"   # Change this to wherever you want your results
 
 # ==== Roboflow Download Code (YOURS, CLEANED UP) ====
 rf = Roboflow(api_key="YdDfLLnAGyRUYI27R1aa")
 project = rf.workspace("inspirationrs25").project("rs25_lab_20250704")
-version = project.version(1)
-dataset = version.download("yolov8")  # dataset.location is the path
+version = project.version(3)
+dataset = version.download("yolov8") # dataset.location is the path
 
 # ==== Fix possible folder structure issues (val vs valid, etc) ====
 yaml_path = os.path.join(dataset.location, "data.yaml")
@@ -42,7 +42,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 model = YOLO("yolov8s.pt")  # Use another model here if you want
 results = model.train(
     data=yaml_path,
-    epochs=25,
+    epochs=100,
     imgsz=640,
     project=OUTPUT_FOLDER,
     name="yolov8-custom"
