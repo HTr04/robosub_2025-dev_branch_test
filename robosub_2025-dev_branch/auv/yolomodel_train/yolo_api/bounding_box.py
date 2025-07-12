@@ -27,7 +27,7 @@ class BoundingBox:
         Converts the bounding box to YOLO TXT label format (class_id, center_x, center_y, width, height).
         Returns: String (e.g. "0 0.5 0.5 0.1 0.2")
         """
-        assert self.images_width and self.image_height, "Image size must be set for normalization" #assert to ensure image dimensions are provided for normalization
+        assert self.image_width and self.image_height, "Image size must be set for normalization" #assert to ensure image dimensions are provided for normalization
         # YOLO requires center coordinates and width/height, all normalized to [0, 1]
         x_center = (self.x + self.w / 2) / self.image_width  # Center x coordinate normalized
         y_center = (self.y + self.h / 2) / self.image_height # Center y coordinate normalized
