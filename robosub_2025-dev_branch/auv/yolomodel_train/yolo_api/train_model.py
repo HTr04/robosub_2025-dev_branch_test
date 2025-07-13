@@ -1,8 +1,8 @@
-from trainer import YOLOTrainer
+from .trainer import YOLOTrainer
 
 # ----------- CONFIGURATION -----------
 YOLO_MODEL_ARCH = "yolov8n.pt"               # Use your chosen base model
-YOLO_DATA_YAML = "roboflow_yolo_export/data.yaml"  # Downloaded from Roboflow
+YOLO_DATA_YAML = "C:/Users/HOME/Documents/GitHub/CV_data/test model/data.yaml"  # Downloaded from Roboflow
 YOLO_EPOCHS = 20
 # --------------------------------------
 

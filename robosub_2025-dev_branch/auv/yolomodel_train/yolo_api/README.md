@@ -24,4 +24,6 @@ yolo_api/
 ├── exporter.py # LabelExporter class
 ├── roboflow_api.py # RoboflowAPI class
 ├── trainer.py # YOLOTrainer class
-├── main.py # Example pipeline script
+├
+├── run_detection_and_export.py 
+├── train_model.py

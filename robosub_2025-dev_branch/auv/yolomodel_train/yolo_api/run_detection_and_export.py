@@ -7,7 +7,7 @@ from .detectors import HSVDetector, YOLODetector
 from .exporter import LabelExporter
 
 # ----------- CONFIGURATION -----------
-VIDEO_PATH = "C:/Users/HOME/Documents/GitHub/CV_data/20250704_octagon.mp4"
+VIDEO_PATH = "C:/Users/HOME/Documents/GitHub/CV_data/20250704_torpedo_3.mp4"
 FRAMES_DIR = "C:/Users/HOME/Documents/GitHub/CV_data/test/frames"
 IMAGES_DIR = "C:/Users/HOME/Documents/GitHub/CV_data/test/images"
 LABELS_DIR = "C:/Users/HOME/Documents/GitHub/CV_data/test/labels"
