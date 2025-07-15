@@ -24,7 +24,7 @@ APPROACH_FORWARD_POWER = 1.5        # Forward power while approaching
 SEARCH_YAW_POWER = 1                # Power for search yaw motion
 
 def clamp_power(val):
-    """Clamp any value to [-5, 5] for movement outputs."""
+    """Clamp any value(mainly for offset calculation) to [-5, 5] for movement outputs."""
     return max(-5, min(5, float(val)))
 
 def scale_offset_to_power(offset_px, max_px=OFFSET_MAX_PX, max_power=LATERAL_MAX_POWER):
@@ -150,6 +150,7 @@ class CV:
         elif self.state == "search":
             if bbox:
                 self.state = "approach"
+                """     If we found a pole, switch to approach state.       """
                 print(f"[INFO] Red pole {self.passed_poles+1} targeted (search → approach)")
                 motion = {"forward": 0, "lateral": 0, "yaw": 0, "end": False, "pole_idx": self.passed_poles, "state": self.state}
             else:
@@ -165,6 +166,7 @@ class CV:
                     "state": self.state,
                 }
         elif self.state == "approach":
+            """     Approach the pole diagonally with adaptive offset.       """
             if bbox:
                 if bbox_h >= self.frame_height:
                     """when pole's pixel height is larger than frame height, assueme we are close enough, switch to dead reckoning"""
@@ -186,6 +188,7 @@ class CV:
                 self.state = "search"
                 motion = {"forward": 0, "lateral": 0, "yaw": 0, "end": False, "pole_idx": self.passed_poles, "state": self.state}
         elif self.state == "dead_reckoning":
+            """     Perform dead reckoning after skipping a pole.       """
             elapsed = time.time() - self.dead_reckoning_timer
             if elapsed < self.dead_reckoning_time:
                 motion = {
