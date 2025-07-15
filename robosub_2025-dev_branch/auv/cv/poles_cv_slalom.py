@@ -7,9 +7,9 @@ Note: diameter = 1 inch = 2.54 cm, should be used for pole diameter if needed.
 Using heading to determine yawing direction.
 """
 from ultralytics import YOLO
-import time
-import cv2
-import numpy as np
+import time                     #for timing dead reckoning
+import cv2                      #for image processing   
+import numpy as np              #for numerical operations, masks, contours
 
 # === TUNABLE PARAMETERS ===
 REAL_POLE_HEIGHT_CM = 91.44         # 3 feet pole = 91.44cm, 
@@ -17,7 +17,7 @@ FOCAL_LENGTH_MM = 2.75              # OAK-D W focal length (mm)
 SENSOR_HEIGHT_MM = 3.4              # IMX378 sensor height (mm)
 OFFSET_MIN_PX = 120                 # Min lateral offset in px (tune!)
 OFFSET_MAX_PX = 200                # Max lateral offset in px (tune!)
-DEAD_RECKONING_TIME_SEC = 2.0       # Time to move after pole is skipped (tune!)
+DEAD_RECKONING_TIME_SEC = 2.0       # Time to move forward after pole is skipped (tune!)
 SEARCH_YAW_MAX_DEG = 40             # Max yaw angle for search phase
 LATERAL_MAX_POWER = 1              # Maps OFFSET_MAX_PX to this power
 APPROACH_FORWARD_POWER = 1.5        # Forward power while approaching
@@ -38,7 +38,7 @@ class CV:
     camera = "/auv/camera/videoOAKdRawForward"   # Update to camera/video path in config
 
     def __init__(self, **config):
-        #self.yolo = YOLO('D:/CV_data/YOLO model/Model_red_pole_3692.pt')  # Path to your trained YOLOv8 weights
+        #self.yolo = YOLO('D:/CV_data/YOLO model/Model_red_pole_3692.pt')  # (optional) load YOLO model
         self.side = config.get("side", "left")      # 'left' or 'right'
         self.passed_poles = 0                       # How many red poles have been passed
         self.state = "search"
@@ -64,6 +64,7 @@ class CV:
         return max(red_poles, key=lambda b: b[3])   # Largest by height
 
     def calc_offset_px(self, bbox_h):
+        """Calculate lateral offset in pixels based on bounding box height."""
         if self.frame_height is None:
             return self.offset_min_px
         ratio = min(bbox_h / self.frame_height, 1.0)
@@ -154,7 +155,7 @@ class CV:
             else:
                 self.yaw_accum += self.search_yaw_dir * 0.5
                 if abs(self.yaw_accum) >= SEARCH_YAW_MAX_DEG:
-                    self.search_yaw_dir *= -1
+                    self.search_yaw_dir *= -1                   #either +1 or -1, indicating yaw right or left
                 motion = {
                     "forward": 0,
                     "lateral": 0,
@@ -166,6 +167,7 @@ class CV:
         elif self.state == "approach":
             if bbox:
                 if bbox_h >= self.frame_height:
+                    """when pole's pixel height is larger than frame height, assueme we are close enough, switch to dead reckoning"""
                     print(f"[INFO] Red pole {self.passed_poles+1} passed (approach → dead_reckoning)")
                     self.state = "dead_reckoning"
                     self.dead_reckoning_timer = time.time()

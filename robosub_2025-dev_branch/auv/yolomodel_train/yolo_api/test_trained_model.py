@@ -8,8 +8,8 @@ import cv2
 import os
 
 # --- Edit these paths as needed ---
-MODEL_PATH = 'C:/Users/HOME/Documents/GitHub/CV_data/Trained model/yolov8-custom/weights/best.pt'
-VIDEO_PATH = 'C:/Users/HOME/Documents/GitHub/CV_data/poles_test_1.mp4'
+MODEL_PATH = 'C:/Users/HOME/Documents/GitHub/robosub_2025-dev_branch_test/robosub_2025-dev_branch/runs/train/yolov8_custom2/weights/best.pt'
+VIDEO_PATH = 'C:/Users/HOME/Documents/GitHub/CV_data/20250704_all_2.mp4'
 
 # 1. Run detection and save the output video
 model = YOLO(MODEL_PATH)
