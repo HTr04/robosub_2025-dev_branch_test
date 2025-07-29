@@ -7,7 +7,7 @@ from .detectors import HSVDetector, YOLODetector
 from .exporter import LabelExporter
 
 # ----------- CONFIGURATION -----------
-VIDEO_PATH = "C:/Users/HOME/Documents/GitHub/CV_data/20250704_torpedo_3.mp4"
+VIDEO_PATH = "C:/Users/HOME/Documents/GitHub/CV_data/approach.mp4"
 FRAMES_DIR = "C:/Users/HOME/Documents/GitHub/CV_data/test/frames"
 IMAGES_DIR = "C:/Users/HOME/Documents/GitHub/CV_data/test/images"
 LABELS_DIR = "C:/Users/HOME/Documents/GitHub/CV_data/test/labels"
@@ -28,7 +28,7 @@ CLASS_MAP = {
     "octagon": 13
 }
 DETECTION_METHOD = "YOLO"     # "HSV" or "YOLO"
-YOLO_MODEL_PATH = "C:/Users/HOME/Documents/GitHub/CV_data/Trained model/yolov8-custom_v1/weights/best.pt"
+YOLO_MODEL_PATH = "C:/Users/HOME/Documents/GitHub/CV_data/Trained model/best.pt_model/octagon_approach_1642.pt"
 HSV_LOWER = [0, 100, 100]
 HSV_UPPER = [10, 255, 255]
 SHOW_VIDEO = True
@@ -44,13 +44,13 @@ def main():
     frames = []
     cap = video.cap
     frame_num = 0
+    skip = 3 # Skip frames for faster processing, adjust as needed
     while True:
         ret, img = cap.read()
         if not ret:
             break
-        frames.append(Frame(img, frame_num))
-        frame_num += 1
-    cap.release()
+        frames.append(Frame(img, frame_num//skip))
+        frame_num += 1                       
     print(f"Extracted {len(frames)} frames.")
 
     print("Running object detection...")
@@ -69,7 +69,7 @@ def main():
 
     print("Detecting and displaying/saving detections for verification (press q to quit)...")
     for frame in frames:
-        frame.bounding_boxes = detector.detect_objects(frame) or []
+        frame.bounding_boxes = detector.detect_objects(frame, conf = 0.5) or []
         display = frame.image_data.copy()
         if hasattr(frame, "bounding_boxes"):
             for box in frame.bounding_boxes:
@@ -77,7 +77,7 @@ def main():
                 box.draw_on_image(display, color=color, show_label=True)
         if SHOW_VIDEO:
             cv2.imshow("Verification", display)
-            key = cv2.waitKey(30) & 0xFF
+            key = cv2.waitKey(5) & 0xFF
             if key == ord('q'):
                 print("Verification interrupted by user.")
                 break

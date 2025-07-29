@@ -25,8 +25,8 @@ class LabelExporter:
         """
         for frame in frames:
             # Save image
-            image_filename = f"frame_{frame.frame_number:04d}.jpg"
-            label_filename = f"frame_{frame.frame_number:04d}.txt"
+            image_filename = f"frame_{int(frame.frame_number):04d}.jpg"
+            label_filename = f"frame_{int(frame.frame_number):04d}.txt"
             image_path = os.path.join(self.images_dir, image_filename)
             label_path = os.path.join(self.labels_dir, label_filename)
             cv2.imwrite(image_path, frame.image_data)

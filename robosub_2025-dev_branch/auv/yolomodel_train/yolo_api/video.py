@@ -44,9 +44,9 @@ class Video:
             if return_frames:                             # If return_frames is True, create a Frame object
                 frames.append(Frame(frame, frame_num))    # Append the frame to the list of frames
             if save_frames and output_folder is not None: # If save_frames is True and output_folder is provided
-                frame_path = os.path.join(output_folder, f"frame_{frame_num:04d}.jpg") # Format the frame number with leading zeros
+                frame_path = os.path.join(output_folder, f"frame_{int(frame_num):04d}.jpg") # Format the frame number with leading zeros
                 cv2.imwrite(frame_path, frame)               # Save the frame as an image file
-            frame_num += 1                                   # Increment the frame number
+            frame_num += 0.01                                   # Increment the frame number
         self.cap.release()                                   # Release the video capture object to frees up resources
         print(f"Extracted {frame_num} frames to {output_folder}")
         
@@ -68,3 +68,8 @@ class Frame:
         cv2.imshow(window_name, self.image_data) # Show the image in a window
         cv2.waitKey(0) # Wait for a key press to close the window
         cv2.destroyAllWindows() 
+
+if __name__ == "__main__":
+    video_path = "C:/Users/HOME/Documents/GitHub/CV_data/Small Model/Octagon/approach.mp4"  # Replace with your video file path
+    video = Video(video_path)  # Create a Video object
+    frames = video.split_to_frames(output_folder="C:/Users/HOME/Documents/GitHub/CV_data/Small Model/Octagon/Images", return_frames=True, save_frames=True)  # Split video into frames
